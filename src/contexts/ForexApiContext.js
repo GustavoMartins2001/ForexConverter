@@ -3,40 +3,34 @@ import axios from 'axios';
 
 export const ForexApiContext = createContext();
 
-const ForexApiProvider = ({ children }) => {
+export const ForexApiProvider = ({ children }) => {
     const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState(null);
 
     useEffect(() => {
         const getForexPairsDescription = async () => {
           try {
-            setLoading(true);
-            const apiKey = process.env.REACT_APP_FOREX_API_KEY;
-            console.log(apiKey);
+            // setLoading(true);
+            const apiKey = process.env.REACT_APP_API_KEY;
             if (!apiKey) {
               throw new Error("API key nao foi definida.");
             }
             const response = await axios.get(
-              `https://financialmodelingprep.com/stable/forex-list?apikey=${apiKey}`
+              `https://brapi.dev/api/v2/currency/available?token=${apiKey}`
             );
-            setData(response.data);
+            setData(response.data.currencies);
           } catch (err) {
-            setError(err.message);
+            // setError(err.message);
           } finally {
-            setLoading(false);
+            // setLoading(false);
           }
         };
-      
         getForexPairsDescription();
       }, []);
-      
-
     return (
         <ForexApiContext.Provider value={data}>
             {children}
         </ForexApiContext.Provider>
     );
 };
-
-export default ForexApiProvider;
