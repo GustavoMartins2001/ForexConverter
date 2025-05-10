@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import {
   Button,
   Container,
   Form,
-  FormControl,
   Row,
   Col,
   InputGroup,
@@ -12,6 +12,7 @@ import {
 } from "react-bootstrap";
 // import { createPortal } from 'react-dom';
 import { ForexApiContext } from "../contexts/ForexApiContext";
+import { ResultModal } from "./ResultModal"
 import "bootstrap/dist/css/bootstrap.css";
 
 function CurrencyPairs() {
@@ -20,6 +21,8 @@ function CurrencyPairs() {
   const [selectedPair, setSelectedPair] = useState();
   const [moneyAmount, setMoneyAmount] = useState(0);
   const [result, setResult] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     // setSelectedPair() só atualiza selectedPair quando o código é renderizado novamente. useEffect é chamado após a renderização.
@@ -27,6 +30,12 @@ function CurrencyPairs() {
       console.log("Updated selectedPair:", selectedPair);
     }
   }, [selectedPair]);
+
+  useEffect(() => {
+    if (showModal) {
+      console.log("Modal foi exibido!");
+    }
+  }, [showModal]);
 
   /**
    *
@@ -49,26 +58,20 @@ function CurrencyPairs() {
     setMoneyAmount(amount);
   };
 
-  //TODO: criar um componente separado para o search bar com filtragem de moedas por nome ou sigla.
-  /**
-   *
-   * @param {*} e money amount.
-   * @return void
-   * @description when submiting the form, make a get request to the api to get the exchange rate. Then calculate the converted value and show it in an alert.
-   */
   const handleSubmit = async (e) => {
+    setShowModal(false);
     e.preventDefault();
     if (selectedPair && moneyAmount) {
       const response = await axios.get(
         `https://brapi.dev/api/v2/currency?currency=${selectedPair}&token=${process.env.REACT_APP_API_KEY}`
       );
-      setResult(response.data.currency[0]); // para ser usado em outro momento futuro
       const res = response.data.currency[0];
       if (res) {
         const convertedValue = moneyAmount * res.askPrice;
-        alert(
-          `Convertendo de ${res.name.split("/")[0]} para ${res.name.split("/")[1]} com a quantia de ${moneyAmount} ${res.fromCurrency}.\nValor convertido: ${convertedValue.toFixed(2)} ${res.toCurrency}`
-        );
+        setResult({convertedValue: convertedValue,  data:response.data.currency[0]}); // para ser usado em outro momento futuro
+        setShowModal(true);
+        console.log(showModal)
+
       } else {
         alert("Par de moedas não encontrado ou valor invalido.");
       }
@@ -85,6 +88,7 @@ function CurrencyPairs() {
           <Row className="md-6">
             <Col>
               {
+                //TODO: adicionar função de busca por nome ou sigla de moeda
                 <Form.Control as="select" onChange={handlePairSelect}>
                   <option value="">Escolha um par de moedas</option>
                   {forexData && Array.isArray(forexData) ? (
@@ -121,6 +125,8 @@ function CurrencyPairs() {
       <Button variant="primary" size="lg" className="mt-3" onClick={handleSubmit}>
         Calcular
       </Button>
+      {showModal && createPortal(<ResultModal showModal = {showModal} setShowModal = {setShowModal} result = {result}/>, document.getElementById('modal-root'))}
+      <div id="modal-root"></div>
     </Container>
   );
 }

@@ -19,11 +19,11 @@ export const ForexApiProvider = ({ children }) => {
             const response = await axios.get(
               `https://brapi.dev/api/v2/currency/available?token=${apiKey}`
             );
+            // TODO: salvar resposta em uma arquivo JSON para evitar chamadas desnecessárias.
+            // Atualizar apenas 1 vez por dia para caso novas moedas sejam adicionadas na API.
             setData(response.data.currencies);
           } catch (err) {
-            // setError(err.message);
-          } finally {
-            // setLoading(false);
+            console.log(err)
           }
         };
         getForexPairsDescription();
