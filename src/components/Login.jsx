@@ -3,7 +3,7 @@ import {Container, Row, Col, Form, InputGroup } from 'react-bootstrap';
 
 function Login(){
     return (
-        <Container className="text-center">
+        <Container className="text-center full">
             <Form>
                 <Form.Group>
                     <Row>

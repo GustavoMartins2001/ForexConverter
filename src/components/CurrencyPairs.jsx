@@ -14,6 +14,7 @@ import {
 import { ForexApiContext } from "../contexts/ForexApiContext";
 import { ResultModal } from "./ResultModal"
 import "bootstrap/dist/css/bootstrap.css";
+import "./Login.css";
 
 function CurrencyPairs() {
   // organiza em ordem alfabética
@@ -87,7 +88,7 @@ function CurrencyPairs() {
   }
 
   return (
-    <Container className="text-center">
+    <Container className="text-center d-flex justify-content-center align-items-center flex-column full">
       <Form>
         <Form.Group>
           <Form.Label>Selecione as moedas</Form.Label>
