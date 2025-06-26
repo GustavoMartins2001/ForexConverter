@@ -1,24 +1,31 @@
 import React from 'react';
 import './App.css';
 import CurrencyPairs from './components/CurrencyPairs';
-import { Container  } from 'react-bootstrap';
+import Login from './components/Login';
 import {ForexApiProvider} from './contexts/ForexApiContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+
+
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        {
-          <ForexApiProvider>
-            <Container className="text-center">
-              <h1>Forex API</h1>
+    <Router>
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            <ForexApiProvider>
               <CurrencyPairs />
-              
-            </Container>
-          </ForexApiProvider>
-        }
-      </header>
-    </div>
+            </ForexApiProvider>}
+        />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

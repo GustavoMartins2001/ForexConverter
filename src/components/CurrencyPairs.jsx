@@ -62,12 +62,18 @@ function CurrencyPairs() {
     setShowModal(false);
     e.preventDefault();
     if (selectedPair && moneyAmount) {
+
+      //TODO: passar essa logica para o backend, e então retornar o valor em JSON e dar parse para usar no setresult;
+      // Tentar pegar do banco de dados primeiro antes de acessar a API.
       const response = await axios.get(
         `https://brapi.dev/api/v2/currency?currency=${selectedPair}&token=${process.env.REACT_APP_API_KEY}`
       );
+
       const res = response.data.currency[0];
       if (res) {
         const convertedValue = moneyAmount * res.askPrice;
+
+
         setResult({convertedValue: convertedValue,  data:response.data.currency[0]}); // para ser usado em outro momento futuro
         setShowModal(true);
         console.log(showModal)
