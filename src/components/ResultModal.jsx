@@ -26,7 +26,7 @@ export const ResultModal = ({showModal, setShowModal, result}) => {
                     <Row>
                         <Col className="md-12">
                         <label>Taxa de câmbio de {result.data.fromCurrency} -{'>'} {result.data.toCurrency}:</label>
-                        <p className="wrapper">{Number(result.data.askPrice)}</p>
+                        <p className="wrapper">{Number(result.data.askPrice).toFixed(2)}</p>
                         </Col>
                         
                     </Row>

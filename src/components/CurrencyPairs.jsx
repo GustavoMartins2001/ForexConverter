@@ -64,20 +64,16 @@ function CurrencyPairs() {
     e.preventDefault();
     if (selectedPair && moneyAmount) {
 
-      //TODO: passar essa logica para o backend, e então retornar o valor em JSON e dar parse para usar no setresult;
-      // Tentar pegar do banco de dados primeiro antes de acessar a API.
       const response = await axios.get(
-        `https://brapi.dev/api/v2/currency?currency=${selectedPair}&token=${process.env.REACT_APP_API_KEY}`
+        `http://localhost:3000/api/currencies/${selectedPair}`// retorna o par de moedas selecionado
       );
 
-      const res = response.data.currency[0];
+      const res = response;
+      console.log("Response:", res);
       if (res) {
-        const convertedValue = moneyAmount * res.askPrice;
-
-
-        setResult({convertedValue: convertedValue,  data:response.data.currency[0]}); // para ser usado em outro momento futuro
+        const convertedValue = parseFloat(moneyAmount) * parseFloat(res.data.askPrice);
+        setResult({convertedValue: convertedValue,  data:res.data});
         setShowModal(true);
-        console.log(showModal)
 
       } else {
         alert("Par de moedas não encontrado ou valor invalido.");
@@ -88,53 +84,55 @@ function CurrencyPairs() {
   }
 
   return (
-    <Container className="text-center d-flex justify-content-center align-items-center flex-column full">
-      <Form>
-        <Form.Group>
-          <Form.Label>Selecione as moedas</Form.Label>
-          <Row className="md-6">
-            <Col>
-              {
-                //TODO: adicionar função de busca por nome ou sigla de moeda
-                <Form.Control as="select" onChange={handlePairSelect}>
-                  <option value="">Escolha um par de moedas</option>
-                  {forexData && Array.isArray(forexData) ? (
-                    forexData
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((item) => (
-                        <option key={item.name} value={item.name}>
-                          {item.name.split("/")[0]} {item.name.split("/")[1]} -{" "}
-                          {item.currency}
-                        </option>
-                      ))
-                  ) : (
-                    <option value="" disabled>
-                      Sem dados
-                    </option>
-                  )}
-                </Form.Control>
-              }
-            </Col>
-            <Col>
-              <InputGroup>
-                <InputGroup.Text></InputGroup.Text>
-                <Form.Control onChange={handleMoneyUpdate}
-                  type="number"
-                  min="0  "
-                  placeholder="insira a quantia em dinheiro"
-                  aria-label="insira a quantia em dinheiro"
-                />
-              </InputGroup>
-            </Col>
-          </Row>
-        </Form.Group>
-      </Form>
-      <Button variant="primary" size="lg" className="mt-3" onClick={handleSubmit}>
-        Calcular
-      </Button>
-      {showModal && createPortal(<ResultModal showModal = {showModal} setShowModal = {setShowModal} result = {result}/>, document.getElementById('modal-root'))}
-      <div id="modal-root"></div>
-    </Container>
+    <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Container className="text-center d-flex flex-column align-items-center justify-content-center full">
+        <Form>
+          <Form.Group>
+            <Form.Label>Selecione as moedas</Form.Label>
+            <Row className="md-6">
+              <Col>
+                {
+                  //TODO: adicionar função de busca por nome ou sigla de moeda
+                  <Form.Control as="select" onChange={handlePairSelect}>
+                    <option value="">Escolha um par de moedas</option>
+                    {forexData && Array.isArray(forexData) ? (
+                      forexData
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((item) => (
+                          <option key={item.name} value={item.name}>
+                            {item.name.split("/")[0]} {item.name.split("/")[1]} -{" "}
+                            {item.currency}
+                          </option>
+                        ))
+                    ) : (
+                      <option value="" disabled>
+                        Sem dados
+                      </option>
+                    )}
+                  </Form.Control>
+                }
+              </Col>
+              <Col>
+                <InputGroup>
+                  <InputGroup.Text></InputGroup.Text>
+                  <Form.Control onChange={handleMoneyUpdate}
+                    type="number"
+                    min="0"
+                    placeholder="insira a quantia em dinheiro"
+                    aria-label="insira a quantia em dinheiro"
+                  />
+                </InputGroup>
+              </Col>
+            </Row>
+          </Form.Group>
+        </Form>
+        <Button variant="primary" size="lg" className="mt-3" onClick={handleSubmit}>
+          Calcular
+        </Button>
+        {showModal && createPortal(<ResultModal showModal = {showModal} setShowModal = {setShowModal} result = {result}/>, document.getElementById('modal-root'))}
+        <div id="modal-root"></div>
+      </Container>
+    </div>
   );
 }
 

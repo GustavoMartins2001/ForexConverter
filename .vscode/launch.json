@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch React App",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/src/frontend",
+      "preLaunchTask": "start-frontend"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Backend",
+      "program": "${workspaceFolder}/backend/server.js",
+      "cwd": "${workspaceFolder}/backend",
+      "envFile": "${workspaceFolder}/backend/config/.env"
+    }
+  ]
+}
