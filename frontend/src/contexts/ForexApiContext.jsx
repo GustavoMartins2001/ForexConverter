@@ -14,8 +14,14 @@ export const ForexApiProvider = ({ children }) => {
               throw new Error("API key nao foi definida.");
             }
             //pega as moedas do banco de dados, que é atualizado diariamente pelo job.
-            const response = await axios.get(  
-              `http://localhost:3000/api/currencies`
+            const response = await axios.get(
+              `http://localhost:3000/api/currencies`,
+              {
+              headers: {
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem("token") || ''
+              }
+              }
             );
             
             console.log("ForexApiContext response:", response);

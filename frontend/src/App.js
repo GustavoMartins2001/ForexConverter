@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import CurrencyPairs from './components/CurrencyPairs';
+import NewCurrency from './components/NewCurrency';
 import Login from './components/Login';
 import UserAuthentication from './components/UserAuthentication';
 import {ForexApiProvider} from './contexts/ForexApiContext';
@@ -31,6 +32,10 @@ function App() {
         <Route
           path="/login"
           element={<Login />}
+        />
+        <Route
+          path="/currencies/new"
+          element={<NewCurrency />}
         />
       </Routes>
     </Router>

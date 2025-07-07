@@ -6,6 +6,7 @@ function authenticateToken(req, res, next) {
 
   if (!token) return res.status(401).json({ error: 'Token não fornecido' });
 
+  console.log("Token recebido:", token);
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: 'Token inválido ou expirado' });
     req.user = user; // anexa os dados do usuário à requisição

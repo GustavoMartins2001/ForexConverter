@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const axios = require('axios');
 const atualizarBancoDeDados = require('../config/jobs/updateCurrencies');
+const authenticateToken = require('../config/middleware/auth');
+
 
 
 // Login
@@ -27,15 +29,7 @@ router.post('/login', (req, res) => {
   });
 });
 
-// forca a atualizacao do banco de dados mesmo fora do horario
-router.post('/atualizardb', async (req, res) => {
-  try {
-    await atualizarBancoDeDados();
-    res.json({ message: 'Atualização manual concluída com sucesso' });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro ao atualizar dados' });
-  }
-});
+
 
 router.get('/currencies', (req, res) => {
     const query = 'SELECT * FROM currencies';
@@ -50,7 +44,7 @@ router.get('/currencies', (req, res) => {
     })
 });
 
-router.get('/currencies/:pair',async (req, res) => {
+router.get('/currencies/:pair', authenticateToken, async (req, res) => {
     const { pair } = req.params;
     try{
       valor = await axios.get(`https://brapi.dev/api/v2/currency?currency=${pair}&token=${process.env.API_KEY}`)
@@ -67,24 +61,40 @@ router.get('/currencies/:pair',async (req, res) => {
     }
   });
 
-
-
-
-
-
-// Cadastro interno para popular banco de dados pelo postman com senha encriptada
-router.post('/register', async (req, res) => {
-  const { email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const query = 'INSERT INTO users (email, password) VALUES (?, ?)';
-
-  db.query(query, [email, hashed], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Erro ao registrar usuário' });
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
-  });
+// forca a atualizacao do banco de dados mesmo fora do horario
+router.post('/currencies/update', authenticateToken, async (req, res) => {
+  try {
+    await atualizarBancoDeDados();
+    res.json({ message: 'Atualização manual concluída com sucesso' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao atualizar dados' });
+  }
 });
 
+router.post('/currencies', authenticateToken, async (req, res) => {
+  try {
+    const currencies = req.body;
 
+    if (currencies.length === 0) {
+      return res.status(400).json({ error: 'Envie um par de moedas válido.' });
+    }
 
+    const { name, currency } = currencies;
+
+    //caso a currency já exista, atualiza o nome e a moeda
+    const query = `
+      INSERT INTO currencies (name, currency)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE name = VALUES(name), currency = VALUES(currency);
+    `;
+
+    await db.promise().query(query, [name, currency]);
+
+    res.status(200).json({ message: 'Moedas inseridas/atualizadas com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao adicionar moedas:', error);
+    res.status(500).json({ error: 'Erro interno ao adicionar moedas.' });
+  }
+});
 
 module.exports = router;

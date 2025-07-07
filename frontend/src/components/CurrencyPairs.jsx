@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Button,
@@ -14,7 +15,7 @@ import {
 import { ForexApiContext } from "../contexts/ForexApiContext";
 import { ResultModal } from "./ResultModal"
 import "bootstrap/dist/css/bootstrap.css";
-import "./Login.css";
+import "./Styles.css";
 
 function CurrencyPairs() {
   // organiza em ordem alfabética
@@ -23,7 +24,21 @@ function CurrencyPairs() {
   const [moneyAmount, setMoneyAmount] = useState(0);
   const [result, setResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
+  // Verifica se o usuário está autenticado, se não estiver, redireciona para a página de login.
+  useEffect(() => {
+    console.log(localStorage.getItem("token"))
+    if (localStorage.getItem("token") === null) {
+        console.error("Usuario não autenticado. redirecionando para tela de login.");
+        navigate("/login");
+      }
+    if (forexData) {
+      console.log("Dados carregados:", forexData);
+    } else {
+      console.error("Dados dos pares não estão disponiveis.");
+    }
+  }, [])
 
   useEffect(() => {
     // setSelectedPair() só atualiza selectedPair quando o código é renderizado novamente. useEffect é chamado após a renderização.
@@ -65,21 +80,24 @@ function CurrencyPairs() {
     if (selectedPair && moneyAmount) {
 
       const response = await axios.get(
-        `http://localhost:3000/api/currencies/${selectedPair}`// retorna o par de moedas selecionado
+        `http://localhost:3000/api/currencies/${selectedPair}`, // retorna o par de moedas selecionado
+        {headers: {
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem("token") || ''
+              }}
       );
 
       const res = response;
-      console.log("Response:", res);
       if (res) {
         const convertedValue = parseFloat(moneyAmount) * parseFloat(res.data.askPrice);
         setResult({convertedValue: convertedValue,  data:res.data});
         setShowModal(true);
 
       } else {
-        alert("Par de moedas não encontrado ou valor invalido.");
+        console.log("Par de moedas não encontrado ou valor invalido.");
       }
     } else {
-      alert("Por favor, selecione um par de moedas e insira um valor.");
+      console.log("Por favor, selecione um par de moedas e insira um valor.");
     }
   }
 
